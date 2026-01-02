@@ -50,15 +50,22 @@ export async function fetchRecentPhotosApi() {
   return res.data;
 }
 
-export async function getPhotosApi(
-  query?: string
-) {
+export async function getPhotosApi(params: {
+  query?: string;
+  cursor?: number | null;
+}) {
   const res = await api.get('/photos', {
     params: {
-      ...(query ? { query } : {}),
+      query: params.query || undefined,
+      cursor: params.cursor || undefined,
+      limit: 4,
     },
   });
-  return res.data as Photo[];
+
+  return res.data as {
+    items: Photo[];
+    nextCursor: number | null;
+  };
 }
 
 export async function fetchOwnerPhotosApi(

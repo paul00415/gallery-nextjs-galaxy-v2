@@ -34,6 +34,8 @@ interface PhotoState {
 
   loading: boolean;
   query: string;
+  lastCursor: number | null;
+  hasMore: boolean;
   error: string | null;
 }
 
@@ -44,6 +46,8 @@ const initialState: PhotoState = {
   loading: false,
   query: '',
   error: null,
+  lastCursor: null,
+  hasMore: true,
 };
 
 export const uploadPhoto = createAsyncThunk<
@@ -87,15 +91,16 @@ export const fetchRecentPhotos = createAsyncThunk(
 );
 
 export const fetchAllPhotos = createAsyncThunk<
-  Photo[],
+  { items: Photo[]; nextCursor: number | null },
   { query?: string },
-  { state: { photo: PhotoState }; rejectValue: string }
->('photos/get', async ({ query }, { rejectWithValue }) => {
-  try {
-    return await getPhotosApi(query);
-  } catch {
-    return rejectWithValue('Failed to load photos');
-  }
+  { state: { photo: PhotoState } }
+>('photos/get', async ({ query }, { getState }) => {
+  const state = getState().photo;
+
+  return await getPhotosApi({
+    query,
+    cursor: state.lastCursor,
+  });
 });
 
 export const fetchOwnerPhotos = createAsyncThunk<
@@ -167,6 +172,8 @@ const photoSlice = createSlice({
   reducers: {
     resetAllPhotos: (state, action) => {
       state.allImages = [];
+      state.lastCursor = null;
+      state.hasMore = true;
       state.query = action.payload;
     },
   },
@@ -210,7 +217,14 @@ const photoSlice = createSlice({
       })
       .addCase(fetchAllPhotos.fulfilled, (state, action) => {
         state.loading = false;
-        state.allImages = action.payload;
+
+        const newItems = action.payload.items.filter(
+          (n) => !state.allImages.some((p) => p.id === n.id)
+        );
+
+        state.allImages.push(...newItems);
+        state.lastCursor = action.payload.nextCursor;
+        state.hasMore = Boolean(action.payload.nextCursor);
       })
       .addCase(fetchAllPhotos.rejected, (state, action) => {
         state.loading = false;
@@ -272,4 +286,5 @@ const photoSlice = createSlice({
   },
 });
 
+export const { resetAllPhotos } = photoSlice.actions;
 export default photoSlice.reducer;

@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Input, Button, Avatar } from '@heroui/react';
-import { SearchIcon } from '@heroui/shared-icons';
+import { Button, Avatar } from '@heroui/react';
 import {
   Dropdown,
   DropdownTrigger,
@@ -14,28 +13,16 @@ import { useRouter } from 'next/navigation';
 import { Image } from '@heroui/image';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logoutUserThunk } from '@/store/auth/authSlice';
-import { fetchAllPhotos, fetchOwnerPhotos } from '@/store/photo/photoSlice';
-import { usePathname } from 'next/navigation';
 
 export default function Header() {
   const dispatch = useAppDispatch();
-  const [query, setQuery] = useState('');
   const [windowWidth, setWindowWidth] = useState<number | null>(null);
   const router = useRouter();
-  const pathname = usePathname();
 
   const handleLogout = async () => {
     await dispatch(logoutUserThunk());
     router.push('/');
   };
-
-  useEffect(() => {
-    if(pathname.includes('my-photos')) {
-      dispatch(fetchOwnerPhotos({ query: query }));
-    } else {
-      dispatch(fetchAllPhotos({ query: query }));
-    }
-  }, [query])
 
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
@@ -62,16 +49,7 @@ export default function Header() {
         </Link>
       </div>
 
-      <div className="justify-center flex flex-1 px-4">
-        <Input
-          aria-label="Search"
-          placeholder="Search Photos..."
-          value={query}
-          onValueChange={setQuery}
-          startContent={<SearchIcon className="w-4 h-4 text-muted" />}
-          classNames={{ mainWrapper: 'w-full min-w-[100px] flex-shrink-0' }}
-        />
-      </div>
+
 
       <div className="justify-end gap-3 flex flex-row items-center">
         {isAuthenticated ? (
