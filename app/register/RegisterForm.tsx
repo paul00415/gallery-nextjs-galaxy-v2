@@ -66,12 +66,6 @@ export default function RegisterForm() {
     }
   }, [registered, router]);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/');
-    }
-  }, [isAuthenticated, router]);
-
   return (
     <div className="max-w-sm mx-auto p-6 border border-gray-100 rounded-lg shadow-sm">
       <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>

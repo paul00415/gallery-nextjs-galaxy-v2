@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchRecentPhotos, fetchAllPhotos } from '@/store/photo/photoSlice';
 
@@ -9,39 +9,13 @@ import ImageListShow from '../components/ImageListShow';
 
 export default function Gallery() {
   const dispatch = useAppDispatch();
-  const { recentItems, allImages, loading } = useAppSelector(
-    (state) => state.photo
-  );
-  const loaderRef = useRef<HTMLDivElement | null>(null);
-  const loadingRef = useRef(false);
+  const { recentItems, allImages } =
+    useAppSelector((state) => state.photo);
 
   // initial load
   useEffect(() => {
     dispatch(fetchRecentPhotos());
-    dispatch(fetchAllPhotos());
-  }, [dispatch]);
-
-  // keep loading state in ref (no rerender)
-  useEffect(() => {
-    loadingRef.current = loading;
-  }, [loading]);
-
-  // intersection observer (RUN ONCE)
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !loadingRef.current) {
-          dispatch(fetchAllPhotos());
-        }
-      },
-      { threshold: 1 }
-    );
-
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
-    }
-
-    return () => observer.disconnect();
+    dispatch(fetchAllPhotos({ query: ''}));
   }, [dispatch]);
 
   const carouselImages = recentItems.map((p) => ({
@@ -64,10 +38,6 @@ export default function Gallery() {
       <section className="px-4 sm:px-6 md:px-8 lg:px-10">
         <ImageListShow items={allImages} />
       </section>
-
-      <div ref={loaderRef} className="h-10 flex justify-center">
-        {loading && <p>Loading more...</p>}
-      </div>
     </div>
   );
 }

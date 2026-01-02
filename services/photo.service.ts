@@ -50,18 +50,26 @@ export async function fetchRecentPhotosApi() {
   return res.data;
 }
 
-export async function getPhotosApi(cursor?: string | null) {
+export async function getPhotosApi(
+  query?: string
+) {
   const res = await api.get('/photos', {
-    params: cursor ? { cursor } : 0,
+    params: {
+      ...(query ? { query } : {}),
+    },
   });
-  return res.data;
+  return res.data as Photo[];
 }
 
-export async function fetchOwnerPhotosApi(cursor?: number | null) {
-  const res = await api.get('/photos', {
-    params: cursor ? { cursor } : 0,
+export async function fetchOwnerPhotosApi(
+  query?: string
+) {
+  const res = await api.get('/photos/owner', {
+    params: {
+      ...(query ? { query } : {}),
+    },
   });
-  return res.data;
+  return res.data as Photo[];
 }
 
 export async function deletePhotoApi(photoId: number): Promise<void> {

@@ -14,17 +14,28 @@ import { useRouter } from 'next/navigation';
 import { Image } from '@heroui/image';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logoutUserThunk } from '@/store/auth/authSlice';
+import { fetchAllPhotos, fetchOwnerPhotos } from '@/store/photo/photoSlice';
+import { usePathname } from 'next/navigation';
 
 export default function Header() {
   const dispatch = useAppDispatch();
   const [query, setQuery] = useState('');
   const [windowWidth, setWindowWidth] = useState<number | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     await dispatch(logoutUserThunk());
     router.push('/');
   };
+
+  useEffect(() => {
+    if(pathname.includes('my-photos')) {
+      dispatch(fetchOwnerPhotos({ query: query }));
+    } else {
+      dispatch(fetchAllPhotos({ query: query }));
+    }
+  }, [query])
 
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 

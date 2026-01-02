@@ -27,12 +27,13 @@ interface Photo {
 
 interface PhotoState {
   recentItems: Photo[];
+
   allImages: Photo[];
-  lastAllImageId: string | null;
+
   ownerImages: Photo[];
-  lastOwnerImageId: number | null;
+
   loading: boolean;
-  hasMore: boolean;
+  query: string;
   error: string | null;
 }
 
@@ -40,10 +41,8 @@ const initialState: PhotoState = {
   recentItems: [],
   allImages: [],
   ownerImages: [],
-  lastAllImageId: null,
-  lastOwnerImageId: null,
   loading: false,
-  hasMore: true,
+  query: '',
   error: null,
 };
 
@@ -87,33 +86,29 @@ export const fetchRecentPhotos = createAsyncThunk(
   }
 );
 
-export const fetchAllPhotos = createAsyncThunk(
-  'photos/get',
-  async (_, { getState, rejectWithValue }) => {
-    try {
-      const state = getState() as { photo: PhotoState };
-      const cursor = state.photo.lastAllImageId;
-
-      return await getPhotosApi(cursor);
-    } catch {
-      return rejectWithValue('Failed to load photos');
-    }
+export const fetchAllPhotos = createAsyncThunk<
+  Photo[],
+  { query?: string },
+  { state: { photo: PhotoState }; rejectValue: string }
+>('photos/get', async ({ query }, { rejectWithValue }) => {
+  try {
+    return await getPhotosApi(query);
+  } catch {
+    return rejectWithValue('Failed to load photos');
   }
-);
+});
 
-export const fetchOwnerPhotos = createAsyncThunk(
-  'photos/owner',
-  async (_, { getState, rejectWithValue }) => {
-    try {
-      const state = getState() as { photo: PhotoState };
-      const cursor = state.photo.lastOwnerImageId;
-
-      return await fetchOwnerPhotosApi(cursor);
-    } catch {
-      return rejectWithValue('Failed to load photos');
-    }
+export const fetchOwnerPhotos = createAsyncThunk<
+  Photo[],
+  { query?: string },
+  { state: { photo: PhotoState }; rejectValue: string }
+>('photos/owner', async ({ query }, { rejectWithValue }) => {
+  try {
+    return await fetchOwnerPhotosApi(query);
+  } catch {
+    return rejectWithValue('Failed to load photos');
   }
-);
+});
 
 export const deletePhoto = createAsyncThunk<
   number, // return deleted photo id
@@ -170,10 +165,9 @@ const photoSlice = createSlice({
   name: 'photo',
   initialState,
   reducers: {
-    resetOwnerPhotos: (state) => {
-      state.ownerImages = [];
-      state.lastOwnerImageId = null;
-      state.hasMore = true;
+    resetAllPhotos: (state, action) => {
+      state.allImages = [];
+      state.query = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -216,11 +210,7 @@ const photoSlice = createSlice({
       })
       .addCase(fetchAllPhotos.fulfilled, (state, action) => {
         state.loading = false;
-        state.allImages = [...state.allImages, ...action.payload];
-
-        if (action.payload.length > 0) {
-          state.lastAllImageId = action.payload[action.payload.length - 1].id;
-        }
+        state.allImages = action.payload;
       })
       .addCase(fetchAllPhotos.rejected, (state, action) => {
         state.loading = false;
@@ -233,11 +223,7 @@ const photoSlice = createSlice({
       })
       .addCase(fetchOwnerPhotos.fulfilled, (state, action) => {
         state.loading = false;
-
-        state.ownerImages = [...state.ownerImages, ...action.payload];
-        if (action.payload.length > 0) {
-          state.lastOwnerImageId = action.payload[action.payload.length - 1].id;
-        }
+        state.ownerImages = action.payload;
       })
       .addCase(fetchOwnerPhotos.rejected, (state, action) => {
         state.loading = false;
@@ -286,5 +272,4 @@ const photoSlice = createSlice({
   },
 });
 
-export const { resetOwnerPhotos } = photoSlice.actions;
 export default photoSlice.reducer;

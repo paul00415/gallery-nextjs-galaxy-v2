@@ -28,7 +28,8 @@ export default function MyPhotos() {
 
   // Initial load
   useEffect(() => {
-    dispatch(fetchOwnerPhotos());
+    dispatch(fetchOwnerPhotos({ query: ''}));
+    
   }, [dispatch]);
 
   // keep loading state in ref (no rerender)
@@ -41,7 +42,7 @@ export default function MyPhotos() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !loadingRef.current) {
-          dispatch(fetchOwnerPhotos());
+          dispatch(fetchOwnerPhotos({ query: '' }));
         }
       },
       { threshold: 1 }
