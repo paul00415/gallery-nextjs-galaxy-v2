@@ -14,7 +14,7 @@ export default function Gallery() {
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState('');
 
-  const { recentItems, allImages, hasMore, loading } = useAppSelector(
+  const { recentItems, allImages, hasMoreAll, loading } = useAppSelector(
     (state) => state.photo
   );
 
@@ -30,7 +30,7 @@ export default function Gallery() {
 
   // infinite scroll
   useEffect(() => {
-    if (!loaderRef.current || !hasMore || loading) return;
+    if (!loaderRef.current || !hasMoreAll || loading) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -43,7 +43,7 @@ export default function Gallery() {
 
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
-  }, [dispatch, hasMore, loading, query]);
+  }, [dispatch, hasMoreAll, loading, query]);
 
   const carouselImages = recentItems.map((p) => ({
     title: p.title,
@@ -81,7 +81,7 @@ export default function Gallery() {
         <ImageListShow items={allImages} />
       </section>
 
-      {hasMore && (
+      {hasMoreAll && (
         <div ref={loaderRef} className="h-10 text-center">
           Loading...
         </div>

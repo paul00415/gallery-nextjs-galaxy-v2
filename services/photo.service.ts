@@ -68,15 +68,22 @@ export async function getPhotosApi(params: {
   };
 }
 
-export async function fetchOwnerPhotosApi(
-  query?: string
-) {
+export async function fetchOwnerPhotosApi(params: {
+  query?: string;
+  cursor?: number | null;
+}) {
   const res = await api.get('/photos/owner', {
     params: {
-      ...(query ? { query } : {}),
+      query: params.query || undefined,
+      cursor: params.cursor || undefined,
+      limit: 4,
     },
   });
-  return res.data as Photo[];
+
+  return res.data as {
+    items: Photo[];
+    nextCursor: number | null;
+  };
 }
 
 export async function deletePhotoApi(photoId: number): Promise<void> {

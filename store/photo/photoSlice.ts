@@ -29,25 +29,35 @@ interface PhotoState {
   recentItems: Photo[];
 
   allImages: Photo[];
+  queryAll: string;
+  lastCursorAll: number | null;
+  hasMoreAll: boolean;
 
   ownerImages: Photo[];
+  queryOwner: string;
+  lastCursorOwner: number | null;
+  hasMoreOwner: boolean;
 
   loading: boolean;
-  query: string;
-  lastCursor: number | null;
-  hasMore: boolean;
   error: string | null;
 }
 
 const initialState: PhotoState = {
   recentItems: [],
+
   allImages: [],
+  queryAll: '',
+  lastCursorAll: null,
+  hasMoreAll: true,
+
   ownerImages: [],
+  queryOwner: '',
+  lastCursorOwner: null,
+  hasMoreOwner: true,
+
   loading: false,
-  query: '',
   error: null,
-  lastCursor: null,
-  hasMore: true,
+  
 };
 
 export const uploadPhoto = createAsyncThunk<
@@ -99,20 +109,21 @@ export const fetchAllPhotos = createAsyncThunk<
 
   return await getPhotosApi({
     query,
-    cursor: state.lastCursor,
+    cursor: state.lastCursorAll,
   });
 });
 
 export const fetchOwnerPhotos = createAsyncThunk<
-  Photo[],
+  { items: Photo[]; nextCursor: number | null },
   { query?: string },
-  { state: { photo: PhotoState }; rejectValue: string }
->('photos/owner', async ({ query }, { rejectWithValue }) => {
-  try {
-    return await fetchOwnerPhotosApi(query);
-  } catch {
-    return rejectWithValue('Failed to load photos');
-  }
+  { state: { photo: PhotoState } }
+>('photos/owner', async ({ query }, { getState }) => {
+  const state = getState().photo;
+
+  return await fetchOwnerPhotosApi({
+    query,
+    cursor: state.lastCursorOwner,
+  });
 });
 
 export const deletePhoto = createAsyncThunk<
@@ -172,9 +183,15 @@ const photoSlice = createSlice({
   reducers: {
     resetAllPhotos: (state, action) => {
       state.allImages = [];
-      state.lastCursor = null;
-      state.hasMore = true;
-      state.query = action.payload;
+      state.lastCursorAll = null;
+      state.hasMoreAll = true;
+      state.queryAll = action.payload;
+    },
+    resetOwnerPhotos: (state, action) => {
+      state.ownerImages = [];
+      state.lastCursorOwner = null;
+      state.hasMoreOwner = true;
+      state.queryOwner = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -223,8 +240,8 @@ const photoSlice = createSlice({
         );
 
         state.allImages.push(...newItems);
-        state.lastCursor = action.payload.nextCursor;
-        state.hasMore = Boolean(action.payload.nextCursor);
+        state.lastCursorAll = action.payload.nextCursor;
+        state.hasMoreAll = Boolean(action.payload.nextCursor);
       })
       .addCase(fetchAllPhotos.rejected, (state, action) => {
         state.loading = false;
@@ -237,7 +254,14 @@ const photoSlice = createSlice({
       })
       .addCase(fetchOwnerPhotos.fulfilled, (state, action) => {
         state.loading = false;
-        state.ownerImages = action.payload;
+
+        const newItems = action.payload.items.filter(
+          (n) => !state.ownerImages.some((p) => p.id === n.id)
+        );
+
+        state.ownerImages.push(...newItems);
+        state.lastCursorOwner = action.payload.nextCursor;
+        state.hasMoreOwner = Boolean(action.payload.nextCursor);
       })
       .addCase(fetchOwnerPhotos.rejected, (state, action) => {
         state.loading = false;
@@ -286,5 +310,5 @@ const photoSlice = createSlice({
   },
 });
 
-export const { resetAllPhotos } = photoSlice.actions;
+export const { resetAllPhotos, resetOwnerPhotos } = photoSlice.actions;
 export default photoSlice.reducer;

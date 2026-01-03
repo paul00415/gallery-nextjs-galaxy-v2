@@ -2,19 +2,21 @@
 
 import { useEffect, useRef, useState } from 'react';
 import ImageList from '../../components/ImageList';
-import { Button } from '@heroui/react';
+import { Button, Input } from '@heroui/react';
 import { Plus } from 'lucide-react';
 import ImageModal from '../../components/modals/ImageModal';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { fetchOwnerPhotos } from '@/store/photo/photoSlice';
+import { fetchOwnerPhotos, resetOwnerPhotos } from '@/store/photo/photoSlice';
+import { SearchIcon } from '@heroui/shared-icons';
 
 export default function MyPhotos() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const { ownerImages, loading } = useAppSelector((state) => state.photo);
+  const { ownerImages, loading, hasMoreOwner } = useAppSelector((state) => state.photo);
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const [query, setQuery] = useState('');
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const loadingRef = useRef(false);
@@ -27,33 +29,27 @@ export default function MyPhotos() {
   }, [isAuthenticated, router]);
 
   // Initial load
-  useEffect(() => {
-    dispatch(fetchOwnerPhotos({ query: ''}));
-    
-  }, [dispatch]);
+   useEffect(() => {
+    dispatch(resetOwnerPhotos(query));
+    dispatch(fetchOwnerPhotos({ query }));
+  }, [dispatch, query]);
 
-  // keep loading state in ref (no rerender)
+  // intersection observer
   useEffect(() => {
-    loadingRef.current = loading;
-  }, [loading]);
+    if (!loaderRef.current || !hasMoreOwner || loading) return;
 
-  // intersection observer (RUN ONCE)
-  useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !loadingRef.current) {
-          dispatch(fetchOwnerPhotos({ query: '' }));
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          dispatch(fetchOwnerPhotos({ query }));
         }
       },
       { threshold: 1 }
     );
 
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
-    }
-
+    observer.observe(loaderRef.current);
     return () => observer.disconnect();
-  }, [dispatch]);
+  }, [dispatch, query, hasMoreOwner]);
 
   return (
     <div className="w-full p-6">
@@ -75,13 +71,29 @@ export default function MyPhotos() {
           </Button>
         </div>
 
+        <div className="justify-center flex flex-1 px-4 mt-5">
+          <Input
+            aria-label="Search"
+            placeholder="Search Photos..."
+            value={query}
+            onValueChange={setQuery}
+            startContent={<SearchIcon className="w-4 h-4 text-muted" />}
+            classNames={{
+              mainWrapper: 'w-full min-w-[100px] flex-shrink-0',
+            }}
+          />
+        </div>
+      </div>
+
+      <section className="px-4 sm:px-6 md:px-8 lg:px-10">
         <ImageList items={ownerImages} />
-      </div>
+      </section>
 
-      <div ref={loaderRef} className="h-10 flex justify-center">
-        {loading && <p>Loading more...</p>}
-      </div>
-
+      {hasMoreOwner && (
+        <div ref={loaderRef} className="h-10 flex justify-center">
+          {loading && <p>Loading more...</p>}
+        </div>
+      )}
       <ImageModal
         isOpen={isAddOpen}
         onClose={() => setOpen(false)}
