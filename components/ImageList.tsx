@@ -108,7 +108,7 @@ export default function ImageList({ items }: ImageListProps) {
                     e.stopPropagation();
                     setSelected(item);
                   }}
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/90 hover:bg-white text-black shadow"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/90 hover:bg-white text-black shadow cursor-pointer"
                 >
                   <Eye size={16} />
                 </button>
@@ -118,7 +118,7 @@ export default function ImageList({ items }: ImageListProps) {
                     e.stopPropagation();
                     setEditTarget(item);
                   }}
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-green-500 hover:bg-green-600 text-white shadow"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-green-500 hover:bg-green-600 text-white shadow cursor-pointer"
                 >
                   <Pencil size={16} />
                 </button>
@@ -128,7 +128,7 @@ export default function ImageList({ items }: ImageListProps) {
                     e.stopPropagation();
                     setDeleteTarget(item);
                   }}
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 text-white shadow"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 text-white shadow cursor-pointer"
                 >
                   <Trash2 size={16} />
                 </button>

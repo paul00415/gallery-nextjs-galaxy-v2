@@ -67,7 +67,12 @@ export default function Gallery() {
       </div>
 
       <section className="px-4 sm:px-6 md:px-8 lg:px-10">
-        <h2>Recent Photos</h2>
+        <div className="mb-4 flex items-center gap-3">
+          <span className="h-6 w-1 rounded bg-primary" />
+          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">
+            Recent Photos
+          </h2>
+        </div>
         <ImageCarousel
           images={carouselImages}
           mode="scroll"
@@ -77,7 +82,12 @@ export default function Gallery() {
       </section>
 
       <section className="px-4 sm:px-6 md:px-8 lg:px-10">
-        <h2>All Photos</h2>
+        <div className="mb-4 flex items-center gap-3">
+          <span className="h-6 w-1 rounded bg-primary" />
+          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">
+            All Photos
+          </h2>
+        </div>
         <ImageListShow items={allImages} />
       </section>
 

@@ -62,7 +62,7 @@ export async function getPhotosApi(params: {
     params: {
       query: params.query || undefined,
       cursor: params.cursor || undefined,
-      limit: 4,
+      limit: 12,
     },
   });
 
@@ -80,7 +80,7 @@ export async function fetchOwnerPhotosApi(params: {
     params: {
       query: params.query || undefined,
       cursor: params.cursor || undefined,
-      limit: 4,
+      limit: 12,
     },
   });
 
