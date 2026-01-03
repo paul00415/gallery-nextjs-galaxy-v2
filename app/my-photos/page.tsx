@@ -19,7 +19,6 @@ export default function MyPhotos() {
   const [query, setQuery] = useState('');
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
-  const loadingRef = useRef(false);
 
   const [isAddOpen, setOpen] = useState(false);
 

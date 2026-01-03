@@ -7,6 +7,10 @@ interface Photo {
   desc: string;
   imageUrl: string;
   createdAt?: string;
+  poster: {
+    id: number;
+    name: string;
+  }
 }
 
 export async function getUrls(mimeType: string) {

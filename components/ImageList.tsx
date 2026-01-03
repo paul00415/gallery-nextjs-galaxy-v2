@@ -9,10 +9,33 @@ import { Image } from '@heroui/react';
 import { useAppDispatch } from '@/store/hooks';
 import { deletePhoto } from '@/store/photo/photoSlice';
 
-export default function ImageList({ items }) {
-  const [selected, setSelected] = useState(null);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [editTarget, setEditTarget] = useState(null);
+/* ---------- Types ---------- */
+
+interface Poster {
+  id: number;
+  name: string;
+}
+
+export interface Photo {
+  id: number;
+  title: string;
+  desc: string;
+  imageUrl: string;
+  createdAt?: string;
+  poster?: Poster;
+}
+
+interface ImageListProps {
+  items?: Photo[];
+}
+
+/* ---------- Component ---------- */
+
+export default function ImageList({ items }: ImageListProps) {
+  const [selected, setSelected] = useState<Photo | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Photo | null>(null);
+  const [editTarget, setEditTarget] = useState<Photo | null>(null);
+
   const dispatch = useAppDispatch();
 
   function closePreview() {
@@ -29,13 +52,12 @@ export default function ImageList({ items }) {
 
   function confirmDelete() {
     if (!deleteTarget) return;
-
     dispatch(deletePhoto(deleteTarget.id));
     setDeleteTarget(null);
   }
 
   useEffect(() => {
-    function onKey(e) {
+    function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         closePreview();
         closeDeleteModal();
@@ -56,7 +78,9 @@ export default function ImageList({ items }) {
 
   if (!items || items.length === 0) {
     return (
-      <div className="w-full py-12 text-center text-muted">No photos found</div>
+      <div className="w-full py-12 text-center text-muted">
+        No photos found
+      </div>
     );
   }
 
@@ -69,7 +93,7 @@ export default function ImageList({ items }) {
             className="group bg-white dark:bg-base-800 rounded-lg overflow-hidden shadow hover:shadow-lg transition-shadow cursor-pointer flex flex-col"
           >
             {/* Image + overlay + buttons */}
-            <div className="relative flex flex-row items-center justify-center overflow-hidden">
+            <div className="relative flex items-center justify-center overflow-hidden">
               <Image
                 src={item.imageUrl}
                 alt={item.title}
@@ -84,7 +108,7 @@ export default function ImageList({ items }) {
                     e.stopPropagation();
                     setSelected(item);
                   }}
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/90 hover:bg-white text-black shadow cursor-pointer"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/90 hover:bg-white text-black shadow"
                 >
                   <Eye size={16} />
                 </button>
@@ -94,7 +118,7 @@ export default function ImageList({ items }) {
                     e.stopPropagation();
                     setEditTarget(item);
                   }}
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-green-500 hover:bg-green-600 text-white shadow cursor-pointer"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-green-500 hover:bg-green-600 text-white shadow"
                 >
                   <Pencil size={16} />
                 </button>
@@ -104,31 +128,41 @@ export default function ImageList({ items }) {
                     e.stopPropagation();
                     setDeleteTarget(item);
                   }}
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 text-white shadow cursor-pointer"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 text-white shadow"
                 >
                   <Trash2 size={16} />
                 </button>
               </div>
             </div>
 
-            {/* Metadata fixed at bottom */}
+            {/* Metadata */}
             <div className="p-4 space-y-1">
               <h3 className="text-sm font-medium truncate">
                 Title: {item.title}
               </h3>
-              <p className="text-xs text-muted">Desc: {item.desc}</p>
+
+              <p className="text-xs text-muted truncate">
+                Desc: {item.desc}
+              </p>
+
               <div className="flex justify-between text-xs text-muted">
-                <span>{item.createdAt.split('T')[0]}</span>
+                <span>
+                  {item.createdAt
+                    ? item.createdAt.split('T')[0]
+                    : ''}
+                </span>
               </div>
             </div>
           </article>
         ))}
       </div>
 
-      {/* Image Preview Modal */}
-      <ImagePreviewModal selected={selected} onClose={closePreview} />
+      {/* Modals */}
+      <ImagePreviewModal
+        selected={selected}
+        onClose={closePreview}
+      />
 
-      {/*  Delete Confirm Modal */}
       <DeleteConfirmModal
         target={deleteTarget}
         onClose={closeDeleteModal}
