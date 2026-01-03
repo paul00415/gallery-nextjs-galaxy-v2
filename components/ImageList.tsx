@@ -9,7 +9,7 @@ import { Image } from '@heroui/react';
 import { useAppDispatch } from '@/store/hooks';
 import { deletePhoto } from '@/store/photo/photoSlice';
 
-/* ---------- Types ---------- */
+// Types
 
 interface Poster {
   id: number;
@@ -29,7 +29,7 @@ interface ImageListProps {
   items?: Photo[];
 }
 
-/* ---------- Component ---------- */
+// Component
 
 export default function ImageList({ items }: ImageListProps) {
   const [selected, setSelected] = useState<Photo | null>(null);

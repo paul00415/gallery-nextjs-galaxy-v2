@@ -20,7 +20,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // 🚫 Do NOT retry refresh endpoint itself
+    // Do NOT retry refresh endpoint itself
     if (originalRequest.url?.includes('/auth/refresh')) {
       return Promise.reject(error);
     }

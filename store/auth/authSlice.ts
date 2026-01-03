@@ -100,7 +100,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // 🔹 Used after reload to restore auth state
+    // Used after reload to restore auth state
     restoreAuth(state, action: PayloadAction<{ user: User | null }>) {
       state.user = action.payload.user;
       state.isAuthenticated = true;
@@ -115,7 +115,7 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      /* ===== Register ===== */
+      // Register
       .addCase(register.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -130,7 +130,7 @@ const authSlice = createSlice({
         state.error = action.payload ?? 'Registration failed';
       })
 
-      /* ===== Login ===== */
+      // Login
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -161,10 +161,6 @@ const authSlice = createSlice({
       });
   },
 });
-
-/* =====================
-   Exports
-===================== */
 
 export const { restoreAuth, resetRegisterState } = authSlice.actions;
 
