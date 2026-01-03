@@ -139,11 +139,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.isAuthenticated = true;
-
-        // ✅ Persist ONLY token
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('accessToken', action.payload.accessToken);
-        }
+        localStorage.setItem('accessToken', action.payload.accessToken);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
