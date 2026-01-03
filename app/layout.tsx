@@ -4,6 +4,7 @@ import HeroProvider from './HeroProvider';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AuthProvider from './AuthProvider';
+import GoToTopButton from '../components/GoToTopBtn';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function RootLayout({
               <Header />
               <Footer />
               <main className="mt-20 mb-22">{children}</main>
+              <GoToTopButton />
             </AuthProvider>
           </StoreProvider>
         </HeroProvider>
