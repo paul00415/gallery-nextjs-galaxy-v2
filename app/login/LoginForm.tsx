@@ -6,6 +6,7 @@ import NormalInput from '../../components/InputFields/NormalInput';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { login } from '@/store/auth/authSlice';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function LoginForm() {
   const dispatch = useAppDispatch();
@@ -33,7 +34,16 @@ export default function LoginForm() {
       setPsdError('Password is required');
     }
 
+    if(!email || !password) {
+      return;
+    }
+
     dispatch(login({ email, password }));
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href =
+      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/google`;
   };
 
   useEffect(() => {
@@ -44,7 +54,30 @@ export default function LoginForm() {
 
   return (
     <div className="max-w-sm mx-auto p-6 border border-gray-100 rounded-lg shadow-sm">
-      <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">Welcome back</h2>
+
+      {/* Google Sign In */}
+      <Button
+        variant="bordered"
+        className="w-full flex items-center justify-center gap-3 mb-4"
+        onPress={handleGoogleLogin}
+        disabled={loading}
+      >
+        <Image
+          src="/images/google.png"
+          alt="Google"
+          width={18}
+          height={18}
+        />
+        <span>Sign in with Google</span>
+      </Button>
+
+      {/* Divider */}
+      <div className="flex items-center my-6">
+        <div className="flex-grow border-t border-gray-200" />
+        <span className="mx-3 text-sm text-gray-400">OR</span>
+        <div className="flex-grow border-t border-gray-200" />
+      </div>
 
       {/* Email input */}
       <NormalInput
