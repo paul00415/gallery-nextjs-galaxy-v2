@@ -61,10 +61,10 @@ export default function RegisterForm() {
   }, [registered, dispatch]);
 
   useEffect(() => {
-    if (!registered) {
-      router.push('/login');
+    if (isAuthenticated) {
+      router.push('/my-photos');
     }
-  }, [registered, router]);
+  }, [isAuthenticated, router]);
 
   return (
     <div className="max-w-sm mx-auto p-6 border border-gray-100 rounded-lg shadow-sm">

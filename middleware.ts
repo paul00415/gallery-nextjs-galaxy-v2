@@ -1,29 +1,28 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Define routes access rules
-const PUBLIC_ROUTES = ['/register', '/login'];
+const PUBLIC_ROUTES = ['/login', '/register'];
 const AUTH_ONLY_ROUTES = ['/my-photo'];
 
-export default function middleware(req: NextRequest) {
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const token = req.cookies.get('accessToken'); // get token from cookie
 
-  // Redirect logged-in users away from /login and /register
-  if (PUBLIC_ROUTES.includes(pathname) && token) {
+  // ✅ Read refreshToken (HttpOnly cookie)
+  const refreshToken = req.cookies.get('refreshToken');
+
+  // 1️⃣ Logged-in users should not see login/register
+  if (PUBLIC_ROUTES.includes(pathname) && refreshToken) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Redirect unauthenticated users away from auth-only pages
-  if (AUTH_ONLY_ROUTES.includes(pathname) && !token) {
+  // 2️⃣ Non-logged-in users cannot access protected pages
+  if (AUTH_ONLY_ROUTES.includes(pathname) && !refreshToken) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  // Otherwise allow access
   return NextResponse.next();
 }
 
-// Apply middleware only to these routes
 export const config = {
-  matcher: ['/', '/login', '/register', '/my-photo'],
+  matcher: ['/login', '/register', '/my-photo'],
 };

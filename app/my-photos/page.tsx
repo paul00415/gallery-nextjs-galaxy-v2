@@ -22,10 +22,10 @@ export default function MyPhotos() {
 
   const [isAddOpen, setOpen] = useState(false);
 
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!isAuthenticated) router.push('/');
-  }, [isAuthenticated, router]);
+  // // Redirect if not logged in
+  // useEffect(() => {
+  //   if (!isAuthenticated) router.push('/');
+  // }, [isAuthenticated, router]);
 
   // Initial load
    useEffect(() => {
