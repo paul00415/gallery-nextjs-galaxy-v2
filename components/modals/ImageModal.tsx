@@ -8,7 +8,7 @@ import {
   ModalFooter,
   Button,
 } from '@heroui/react';
-import { useState, useEffect, useEffectEvent } from 'react';
+import { useState, useEffect } from 'react';
 
 import NormalInput from '../../components/InputFields/NormalInput';
 import TextareaInput from '../../components/InputFields/TextareaInput';
@@ -29,8 +29,6 @@ interface ImageModalProps {
   } | null;
 }
 
-type EditPhotoData = NonNullable<ImageModalProps['initialData']>;
-
 export default function ImageModal({
   isOpen,
   onClose,
@@ -44,54 +42,63 @@ export default function ImageModal({
 
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   const [title, setTitle] = useState('');
   const [titleError, setTitleError] = useState('');
+
   const [description, setDescription] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
 
-  const setEditData = useEffectEvent((initialData: EditPhotoData) => {
-    setTitle(initialData.title);
-    setDescription(initialData.desc);
-    setImage(null); // only set if user chooses new image
-    setPreviewUrl(initialData.imageUrl);
-  });
-
-  const setEmptyData = useEffectEvent(() => {
-    setTitle('');
-    setDescription('');
-    setImage(null);
-    setPreviewUrl(null);
-  });
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    if (isEdit && initialData && isOpen) {
-      setEditData(initialData);
-    }
+    if (!isOpen) return;
 
-    if (!isEdit && isOpen) {
-      setEmptyData();
-    }
-  }, [isEdit, initialData, isOpen]);
-
-  const handleSubmit = async () => {
-    // Validation
+    setSubmitted(false);
     setTitleError('');
     setDescriptionError('');
 
+    if (isEdit && initialData) {
+      setTitle(initialData.title);
+      setDescription(initialData.desc);
+      setPreviewUrl(initialData.imageUrl);
+      setImage(null);
+    } else {
+      setTitle('');
+      setDescription('');
+      setPreviewUrl(null);
+      setImage(null);
+    }
+  }, [isOpen, isEdit, initialData]);
+
+  const handleSubmit = async () => {
+    setSubmitted(true);
+
+    let hasError = false;
+
+    // reset errors
+    setTitleError('');
+    setDescriptionError('');
+
+    // IMAGE (add mode only)
     if (!isEdit && !image) {
-      alert('Image is required');
-      return;
+      hasError = true;
     }
 
-    if (!title) {
+    // TITLE
+    if (!title.trim()) {
       setTitleError('Title is required');
-      return;
+      hasError = true;
     }
 
-    if (!description) {
+    // DESCRIPTION
+    if (!description.trim()) {
       setDescriptionError('Description is required');
-      return;
+      hasError = true;
     }
+
+    // Stop if any validation failed
+    if (hasError) return;
 
     try {
       if (isEdit && initialData) {
@@ -105,7 +112,7 @@ export default function ImageModal({
           })
         ).unwrap();
       } else {
-        // Dispatch upload flow
+        console.log('Uploading new photo');
         await dispatch(
           uploadPhoto({
             image: image!,
@@ -114,12 +121,10 @@ export default function ImageModal({
           })
         ).unwrap();
       }
-      // Close modal ONLY on success
+
       onClose();
     } catch (err) {
-      if (err instanceof Error) {
-        console.error(err.message);
-      }
+      console.error(err);
     }
   };
 
@@ -128,10 +133,12 @@ export default function ImageModal({
       <ModalContent>
         {() => (
           <>
-            <ModalHeader>{isEdit ? 'Edit Photo' : 'Add New Photo'}</ModalHeader>
+            <ModalHeader>
+              {isEdit ? 'Edit Photo' : 'Add New Photo'}
+            </ModalHeader>
 
             <ModalBody className="gap-4">
-              <div className="flex flex-col justify-center items-center">
+              <div className="flex justify-center">
                 <ImageInput
                   value={image}
                   previewUrl={previewUrl}
@@ -141,14 +148,9 @@ export default function ImageModal({
                       setPreviewUrl(URL.createObjectURL(file));
                     }
                   }}
-                  required={!isEdit}
-                  noImage={isEdit ? 'undefined' : 'Image is required'}
+                  hasError={submitted && !isEdit && !image}
+                  errorMessage="Image is required"
                 />
-                {image && (
-                  <p className="mt-2 text-sm text-gray-600">
-                    Selected file: {image.name}
-                  </p>
-                )}
               </div>
 
               <NormalInput
@@ -168,14 +170,21 @@ export default function ImageModal({
               />
 
               {error && (
-                <p className="text-sm text-red-500 text-center">{error}</p>
+                <p className="text-sm text-red-500 text-center">
+                  {error}
+                </p>
               )}
             </ModalBody>
 
             <ModalFooter>
-              <Button variant="light" onPress={onClose} isDisabled={loading}>
+              <Button
+                variant="light"
+                onPress={onClose}
+                isDisabled={loading}
+              >
                 Cancel
               </Button>
+
               <Button
                 color="primary"
                 onPress={handleSubmit}

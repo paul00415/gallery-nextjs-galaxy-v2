@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect, useEffectEvent } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Image } from '@heroui/react';
 
 type ImageInputProps = {
@@ -8,8 +8,8 @@ type ImageInputProps = {
   previewUrl?: string | null;
   onChange?: (file: File | null) => void;
   maxSizeMB?: number;
-  noImage?: string;
-  required?: boolean;
+  hasError?: boolean;
+  errorMessage?: string;
 };
 
 export default function ImageInput({
@@ -17,29 +17,24 @@ export default function ImageInput({
   previewUrl,
   onChange,
   maxSizeMB = 5,
-  required = false,
-  noImage,
+  hasError = false,
+  errorMessage,
 }: ImageInputProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [preview, setPreview] = useState<string | null>(
-    value ? URL.createObjectURL(value) : null
-  );
+  const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const setPreviewInit = useEffectEvent((previewUrl: string) => {
-    setPreview(previewUrl);
-  });
-
+  /* Show existing image ONLY if no new file is selected */
   useEffect(() => {
-    if (previewUrl) {
-      setPreviewInit(previewUrl);
+    if (!value && previewUrl) {
+      setPreview(previewUrl);
     }
-  }, [previewUrl]);
+  }, [previewUrl, value]);
 
-  // cleanup blob URLs
+  /* Revoke blob URLs safely */
   useEffect(() => {
     return () => {
-      if (preview && preview.startsWith('blob:')) {
+      if (preview?.startsWith('blob:')) {
         URL.revokeObjectURL(preview);
       }
     };
@@ -58,14 +53,7 @@ export default function ImageInput({
   }
 
   function handleSelect(file: File | null) {
-    if (!file) {
-      if (required && !previewUrl) {
-        setError('Image is required');
-      } else {
-        setError(null);
-      }
-      return;
-    }
+    if (!file) return;
 
     const validationError = validate(file);
     if (validationError) {
@@ -74,24 +62,29 @@ export default function ImageInput({
     }
 
     setError(null);
+
     const url = URL.createObjectURL(file);
-    setPreview(url);
+    setPreview(url);        // shows immediately
     onChange?.(file);
+
+    // allow re-selecting same file
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
   }
 
   return (
     <div className="flex flex-col gap-2">
       <div
-        className={`relative w-48 h-48 border-2 border-dashed rounded-lg cursor-pointer overflow-hidden flex items-center justify-center
-          ${error || noImage ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-100'}`}
+        className={`relative w-48 h-48 rounded-lg cursor-pointer overflow-hidden flex items-center justify-center
+          ${hasError || error ? 'bg-[#fee7ef]' : 'bg-gray-100'}`}
         onClick={() => inputRef.current?.click()}
       >
         {preview ? (
           <Image
             src={preview}
             alt="Preview"
-            className=" h-full object-cover"
-            width={`100%`}
+            className="h-full w-full object-cover"
           />
         ) : (
           <span className="text-sm text-gray-500 text-center px-2">
@@ -108,7 +101,11 @@ export default function ImageInput({
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error || noImage}</p>}
+      {(error || hasError) && (
+        <p className="text-sm text-red-600 text-center">
+          {error || errorMessage}
+        </p>
+      )}
 
       {previewUrl && !value && (
         <p className="text-xs text-gray-500 text-center">
