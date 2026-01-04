@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AuthProvider from './AuthProvider';
 import GoToTopButton from '../components/GoToTopBtn';
+import NotifContainer from '@/components/notifContainer';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export default function RootLayout({
         <HeroProvider>
           <StoreProvider>
             <AuthProvider>
+              <NotifContainer />
               <Header />
               <Footer />
               <main className="mt-20 mb-22">{children}</main>

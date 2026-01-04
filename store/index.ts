@@ -1,13 +1,18 @@
 import { configureStore } from '@reduxjs/toolkit';
 import photoReducer from './photo/photoSlice';
 import authReducer from './auth/authSlice';
+import { notifListener } from './notif/notifListener';
+import notifReducer from './notif/notifSlice';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       photo: photoReducer,
       auth: authReducer,
+      notif: notifReducer
     },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().prepend(notifListener.middleware),
   });
 };
 
