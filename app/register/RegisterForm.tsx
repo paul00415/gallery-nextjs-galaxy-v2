@@ -36,6 +36,8 @@ export default function RegisterForm() {
     if (!psd) setPsdError('Password is required');
     if (psd !== confirmPsd) setConfirmPsdError('Passwords do not match');
 
+    if (!name || !email || !psd || psd !== confirmPsd) return;
+    
     await dispatch(
       register({
         name,
