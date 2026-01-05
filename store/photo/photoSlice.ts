@@ -169,6 +169,10 @@ export const updatePhoto = createAsyncThunk<
       const { uploadUrl, fileUrl } = await getUrls(payload.image.type);
       await uploadToBucket(uploadUrl, payload.image);
       imageUrl = fileUrl;
+    } else {
+      const start = imageUrl.indexOf('/photos/');
+      const end = imageUrl.indexOf('?');
+      imageUrl = imageUrl.substring(start + 1, end);
     }
 
     return await updatePhotoApi(payload.id, {
