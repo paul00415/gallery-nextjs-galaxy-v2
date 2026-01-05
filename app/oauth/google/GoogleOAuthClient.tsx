@@ -36,5 +36,5 @@ export default function GoogleOAuthClient() {
       });
   }, [params, dispatch, router]);
 
-  return <p className="text-center mt-20">Signing you in with Google...</p>;
+  return <p className="text-center mt-30">Signing you in with Google...</p>;
 }

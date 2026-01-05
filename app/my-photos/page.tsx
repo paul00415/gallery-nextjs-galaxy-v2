@@ -51,7 +51,7 @@ export default function MyPhotos() {
   }, [dispatch, query, hasMoreOwner]);
 
   return (
-    <div className="w-full p-6">
+    <div className="w-full p-6 mt-22 mb-20">
       <div className="mx-auto">
         <div className="flex md:flex-row flex-col items-center justify-between mb-4 gap-3">
           <div>

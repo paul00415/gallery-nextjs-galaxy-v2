@@ -27,7 +27,7 @@ export default function RootLayout({
               <NotifContainer />
               <Header />
               <Footer />
-              <main className="mt-20 mb-22">{children}</main>
+              <main>{children}</main>
               <GoToTopButton />
             </AuthProvider>
           </StoreProvider>

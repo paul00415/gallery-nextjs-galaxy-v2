@@ -52,7 +52,7 @@ export default function Gallery() {
   }));
 
   return (
-    <div className="w-full flex flex-col gap-4 overflow-x-hidden">
+    <div className="w-full flex flex-col gap-4 overflow-x-hidden mt-22 mb-20">
       <div className="justify-center flex flex-1 px-4 mt-5">
         <Input
           aria-label="Search"
