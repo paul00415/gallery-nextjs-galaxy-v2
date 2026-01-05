@@ -1,5 +1,5 @@
 import { api } from '@/lib/axios';
-import axios from 'axios';
+import axios, { AxiosProgressEvent } from 'axios';
 
 interface Photo {
   id: number;
@@ -29,15 +29,25 @@ export async function uploadToBucket(
   file: File,
   onProgress?: (percent: number) => void
 ) {
-  await axios.put(uploadUrl, file, {
-    headers: {
-      'Content-Type': file.type,
-    },
-    onDownloadProgress: (e) => {
-      if (!e.total || !onProgress) return;
-      onProgress(Math.round((e.loaded * 100) / e.total));
-    },
-  });
+  try {
+    const res = await axios.put(uploadUrl, file, {
+      headers: {
+        'Content-Type': file.type,
+      },
+      onUploadProgress: (e?: AxiosProgressEvent) => {
+        if (!e?.total || !onProgress) return;
+        const loaded = Number(e.loaded ?? 0);
+        const total = Number(e.total ?? 0);
+        if (!total) return;
+        onProgress(Math.round((loaded * 100) / total));
+      },
+    });
+
+    return res;
+  } catch (err) {
+    console.error('uploadToBucket failed', err);
+    throw err;
+  }
 }
 
 export const createPhoto = async (data: {

@@ -36,7 +36,7 @@ export default function ImageModal({
   initialData,
 }: ImageModalProps) {
   const dispatch = useAppDispatch();
-  const { loading, error } = useAppSelector((state) => state.photo);
+  const { loading } = useAppSelector((state) => state.photo);
 
   const isEdit = mode === 'edit';
 
@@ -168,12 +168,6 @@ export default function ImageModal({
                 onValueChange={setDescription}
                 error={descriptionError}
               />
-
-              {error && (
-                <p className="text-sm text-red-500 text-center">
-                  {error}
-                </p>
-              )}
             </ModalBody>
 
             <ModalFooter>

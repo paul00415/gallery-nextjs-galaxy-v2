@@ -5,9 +5,7 @@ import { showNotif } from './notifSlice';
 
 export const notifListener = createListenerMiddleware();
 
-/* ================================
-   SUCCESS MESSAGE MAP
-================================ */
+// SUCCESS MESSAGE MAP
 const SUCCESS_MESSAGES: Record<string, string> = {
   // auth
   'auth/login/fulfilled': 'Login successful',
