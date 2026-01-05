@@ -37,7 +37,7 @@ export default function RegisterForm() {
     if (psd !== confirmPsd) setConfirmPsdError('Passwords do not match');
 
     if (!name || !email || !psd || psd !== confirmPsd) return;
-    
+
     await dispatch(
       register({
         name,
@@ -56,7 +56,6 @@ export default function RegisterForm() {
 
   useEffect(() => {
     if (registered) {
-      alert('Registered successfully. Please verify your email');
       dispatch(resetRegisterState());
       initInputs();
     }
