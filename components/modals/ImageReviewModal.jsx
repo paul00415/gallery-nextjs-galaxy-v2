@@ -30,18 +30,18 @@ export default function ImagePreviewModal({ selected, onClose }) {
       onClick={onClose}
     >
       <div
-        className="relative max-w-[90vw] max-h-[90vh] p-4"
+        className="relative w-[70vw] p-4"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           ref={closeButtonRef}
           onClick={onClose}
-          className="absolute right-4 top-4 w-9 h-9 rounded-full bg-white shadow cursor-pointer"
+          className="absolute right-4 top-4 w-9 h-9 rounded-full bg-white shadow cursor-pointer z-50"
         >
           ✕
         </button>
 
-        <Image src={selected.imageUrl} alt={selected.title} width={`90%`} />
+        <Image src={selected.imageUrl} alt={selected.title} width={`100%`} />
 
         <div className="mt-2 text-center text-white">{selected.title}</div>
       </div>
